@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>¿Qué suena en Spotify?</title>
+  <style>
+    :root { --radius: 18px; }
+    * { box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: #0b0d10; color: #e7ecf3; margin: 0; min-height: 100svh;
+      display: grid; place-items: center; padding: 24px; }
+    .card {
+      width: min(720px, 94vw);
+      background: #12161c; border: 1px solid #1e2630; border-radius: var(--radius);
+      box-shadow: 0 10px 30px rgba(0,0,0,.35);
+      overflow: hidden;
+    }
+    header { display:flex; justify-content:space-between; align-items:center; padding: 16px 18px; border-bottom: 1px solid #1e2630; }
+    header h1 { font-size: clamp(18px, 2.4vw, 20px); margin: 0; letter-spacing:.2px; }
+    header .actions { display:flex; gap:8px; align-items:center; }
+    .badge { font-size: 12px; padding: 4px 10px; border-radius: 999px; background:#0f7c3a; }
+    .muted { color:#9fb0c3; }
+    button, .btn { appearance:none; border:1px solid #2a3646; background:#16202b; color:#e7ecf3; border-radius: 10px; padding:10px 14px; cursor:pointer; font-weight:600; }
+    button:hover { background:#1a2633; }
+    main { display:grid; grid-template-columns: 120px 1fr; gap:18px; padding: 18px; }
+    .cover { width: 120px; height: 120px; border-radius: 12px; background:#0f1318; border:1px solid #1e2630; object-fit: cover; }
+    .title { font-size: clamp(18px, 3vw, 22px); margin:0 0 6px 0; font-weight: 800; }
+    .artist, .album { margin:0; color:#9fb0c3; }
+    .progress { height: 6px; background:#0f1318; border:1px solid #1e2630; border-radius:999px; overflow:hidden; margin-top: 10px; }
+    .bar { height:100%; width:0%; background:#1db954; }
+    footer { padding: 14px 18px; border-top: 1px solid #1e2630; display:flex; justify-content:space-between; align-items:center; }
+    .hint { font-size: 12px; color:#9fb0c3; }
+    .row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    .small { font-size: 12px; }
+    .error { color:#ff8c8c; }
+    @media (max-width: 520px){ main{ grid-template-columns: 1fr; } .cover{ width:100%; height:auto; aspect-ratio:1/1; } }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <header>
+      <h1>¿Qué se está reproduciendo en Spotify?</h1>
+      <div class="actions">
+        <span id="status" class="badge" style="display:none"></span>
+        <button id="loginBtn" type="button">Iniciar sesión con Spotify</button>
+        <button id="logoutBtn" type="button" style="display:none">Salir</button>
+      </div>
+    </header>
+
+    <main>
+      <img id="cover" class="cover" alt="Carátula" src="" />
+      <section>
+        <p id="stateLabel" class="muted small">No autenticado.</p>
+        <h2 id="track" class="title">—</h2>
+        <p id="artist" class="artist">—</p>
+        <p id="album" class="album">—</p>
+        <div class="progress" aria-hidden="true"><div id="bar" class="bar"></div></div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="row">
+        <span class="hint">Consejo: debe haber una app de Spotify activa reproduciendo algo.</span>
+      </div>
+      <a class="btn small" href="https://www.spotify.com/account/overview/" target="_blank" rel="noreferrer">Cuenta Spotify</a>
+    </footer>
+  </div>
+
+  <script>
+  // === CONFIGURA AQUÍ ===
+  const CLIENT_ID = "491fcc358ddb4bcbb71f82d6aa2917bd"; // 👈 Reemplaza por tu Client ID de Spotify
+  const SCOPES = [
+    "user-read-currently-playing",
+    "user-read-playback-state",
+    "user-read-recently-played"
+  ];
+  // Opcional: si quieres forzar una URL de retorno concreta, ponla aquí.
+  // Por defecto usa la misma URL de esta página (recomendado para GitHub Pages).
+  const REDIRECT_URI = window.location.origin + window.location.pathname;
+
+  // === Utilidades PKCE ===
+  function randString(length){
+    const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
+    let result = '';
+    const randomValues = new Uint8Array(length);
+    crypto.getRandomValues(randomValues);
+    randomValues.forEach(v => result += charset[v % charset.length]);
+    return result;
+  }
+  async function sha256(plain){
+    const encoder = new TextEncoder();
+    const data = encoder.encode(plain);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    return new Uint8Array(hashBuffer);
+  }
+  function base64url(bytes){
+    let str = btoa(String.fromCharCode(...bytes));
+    return str.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+  async function createChallenge(verifier){
+    return base64url(await sha256(verifier));
+  }
+
+  function save(k,v){ localStorage.setItem(k, typeof v === 'string' ? v : JSON.stringify(v)); }
+  function read(k){ try { const v = localStorage.getItem(k); return v && (v.startsWith('{')||v.startsWith('[')) ? JSON.parse(v) : v; } catch { return null; } }
+  function clearAuth(){ ['access_token','expires_at','code_verifier'].forEach(k=>localStorage.removeItem(k)); }
+
+  function tokenValid(){
+    const token = read('access_token'); const exp = Number(read('expires_at')||0);
+    return !!token && Date.now() < exp;
+  }
+
+  async function login(){
+    if(!CLIENT_ID || CLIENT_ID.includes('491fcc358ddb4bcbb71f82d6aa2917bd')){
+      alert('Falta configurar CLIENT_ID en el código.');
+      return;
+    }
+    const verifier = randString(64);
+    const challenge = await createChallenge(verifier);
+    save('code_verifier', verifier);
+    const params = new URLSearchParams({
+      response_type: 'code',
+      client_id: CLIENT_ID,
+      scope: SCOPES.join(' '),
+      redirect_uri: REDIRECT_URI,
+      code_challenge_method: 'S256',
+      code_challenge: challenge
+    });
+    window.location = `https://accounts.spotify.com/authorize?${params.toString()}`;
+  }
+
+  async function exchangeToken(authCode){
+    const verifier = read('code_verifier');
+    const body = new URLSearchParams({
+      client_id: CLIENT_ID,
+      grant_type: 'authorization_code',
+      code: authCode,
+      redirect_uri: REDIRECT_URI,
+      code_verifier: verifier
+    });
+    const res = await fetch('https://accounts.spotify.com/api/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body
+    });
+    if(!res.ok){ throw new Error('No se pudo obtener el token'); }
+    const json = await res.json();
+    const expiresAt = Date.now() + (json.expires_in * 1000) - 5000;
+    save('access_token', json.access_token);
+    save('expires_at', String(expiresAt));
+  }
+
+  async function fetchJSON(url){
+    const res = await fetch(url, { headers: { Authorization: `Bearer ${read('access_token')}` }});
+    if(res.status === 204) return null; // sin contenido
+    if(!res.ok) throw new Error(await res.text());
+    return res.json();
+  }
+
+  function msToTime(ms){
+    const m = Math.floor(ms/60000);
+    const s = Math.floor((ms%60000)/1000).toString().padStart(2,'0');
+    return `${m}:${s}`;
+  }
+
+  function setStatus(text, ok=true){
+    const el = document.getElementById('status');
+    el.textContent = text; el.style.display = 'inline-block';
+    el.style.background = ok ? '#0f7c3a' : '#8b2a2a';
+  }
+
+  function renderState({
+    isPlaying=false,
+    track='—', artist='—', album='—',
+    cover='', progressMs=0, durationMs=0,
+    label='—'
+  }){
+    document.getElementById('stateLabel').textContent = label;
+    document.getElementById('track').textContent = track;
+    document.getElementById('artist').textContent = artist;
+    document.getElementById('album').textContent = album;
+    document.getElementById('cover').src = cover || '';
+    const pct = durationMs ? Math.min(100, Math.round(progressMs / durationMs * 100)) : 0;
+    document.getElementById('bar').style.width = pct + '%';
+  }
+
+  async function loadPlayback(){
+    try{
+      setStatus('Conectado');
+      // Intenta ver lo que suena ahora
+      const now = await fetchJSON('https://api.spotify.com/v1/me/player/currently-playing');
+      if(now && now.item){
+        const t = now.item;
+        renderState({
+          isPlaying: now.is_playing,
+          track: t.name,
+          artist: t.artists.map(a=>a.name).join(', '),
+          album: `${t.album.name} • ${msToTime(t.duration_ms)}`,
+          cover: t.album.images?.[1]?.url || t.album.images?.[0]?.url || '',
+          progressMs: now.progress_ms||0,
+          durationMs: t.duration_ms,
+          label: now.is_playing ? 'Reproduciendo ahora' : 'En pausa'
+        });
+        return;
+      }
+      // Si no hay nada sonando, trae el último reproducido
+      const recent = await fetchJSON('https://api.spotify.com/v1/me/player/recently-played?limit=1');
+      const t = recent?.items?.[0]?.track;
+      if(t){
+        renderState({
+          track: t.name,
+          artist: t.artists.map(a=>a.name).join(', '),
+          album: `${t.album.name} • ${msToTime(t.duration_ms)}`,
+          cover: t.album.images?.[1]?.url || t.album.images?.[0]?.url || '',
+          progressMs: 0,
+          durationMs: t.duration_ms,
+          label: 'Último reproducido'
+        });
+        return;
+      }
+      renderState({ label: 'Sin historial disponible' });
+    } catch(err){
+      console.error(err);
+      setStatus('Error', false);
+      document.getElementById('stateLabel').textContent = 'Error al cargar. Revisa permisos/token.';
+    }
+  }
+
+  function syncUI(){
+    const logged = tokenValid();
+    document.getElementById('loginBtn').style.display = logged ? 'none' : 'inline-block';
+    document.getElementById('logoutBtn').style.display = logged ? 'inline-block' : 'none';
+    if(!logged){ setStatus('Desconectado', false); }
+  }
+
+  async function init(){
+    // Maneja el retorno de Spotify (código de autorización)
+    const url = new URL(window.location.href);
+    const code = url.searchParams.get('code');
+    const error = url.searchParams.get('error');
+    if(error){ setStatus('Acceso denegado', false); }
+    if(code){
+      try{
+        await exchangeToken(code);
+      }catch(e){
+        console.error(e);
+        setStatus('No se pudo iniciar sesión', false);
+      } finally {
+        // Limpia los parámetros de la URL
+        window.history.replaceState({}, document.title, REDIRECT_URI);
+      }
+    }
+
+    syncUI();
+    if(tokenValid()){
+      await loadPlayback();
+      // refresca cada 12s para ver progreso/cambio
+      setInterval(loadPlayback, 12000);
+    }
+  }
+
+  document.getElementById('loginBtn').addEventListener('click', login);
+  document.getElementById('logoutBtn').addEventListener('click', ()=>{ clearAuth(); syncUI(); renderState({ label:'Sesión cerrada' }); });
+
+  init();
+  </script>
+</body>
+</html>
