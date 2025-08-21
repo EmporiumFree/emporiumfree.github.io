@@ -11,8 +11,7 @@
       --bg:#0b0c0f;
       --panel:#0f1113;
       --muted:#8b94a0;
-      --accent:#6ee7b7; /* suave verde */
-      --accent-2:#34d399;
+      --accent:#6ee7b7;
       --glass: rgba(255,255,255,0.03);
       --radius:14px;
     }
@@ -20,61 +19,57 @@
     html,body{height:100%}
     body{
       font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-      background: radial-gradient(1200px 600px at 10% 10%, rgba(16,20,24,0.45), transparent), linear-gradient(180deg,#060607 0%, #0b0c0f 100%);
+      background: linear-gradient(180deg,#060607 0%, #0b0c0f 100%);
       color: #eaf0f3;
       display:flex;align-items:center;justify-content:center;padding:24px;
       -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
     }
 
-    /* Card */
     .shell{
-      width:420px; max-width:96vw; border-radius:var(--radius); overflow:hidden; box-shadow: 0 12px 40px rgba(2,6,10,0.65);
+      width:380px; max-width:96vw; border-radius:var(--radius); overflow:hidden; box-shadow: 0 10px 30px rgba(2,6,10,0.6);
       background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border:1px solid rgba(255,255,255,0.04);
-      backdrop-filter: blur(6px);
     }
 
     header.top{
-      display:flex;align-items:center;gap:12px;padding:16px 18px; background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent);
+      display:flex;align-items:center;gap:12px;padding:14px 16px; background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent);
     }
     .logo{
-      width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--panel),#111316);display:inline-grid;place-items:center;border:1px solid rgba(255,255,255,0.03);
-      font-weight:800;color:var(--accent);font-size:20px;letter-spacing:0.6px;
-      box-shadow: 0 6px 18px rgba(16,185,129,0.04), inset 0 -4px 8px rgba(0,0,0,0.25);
+      width:38px;height:38px;border-radius:9px;background:linear-gradient(135deg,var(--panel),#111316);display:inline-grid;place-items:center;border:1px solid rgba(255,255,255,0.03);
+      font-weight:800;color:var(--accent);font-size:18px;letter-spacing:0.6px;
     }
-    .brand{font-weight:700;font-size:15px}
+    .brand{font-weight:700;font-size:14px}
     .sub{font-size:12px;color:var(--muted)}
 
     main.card{
-      display:grid;grid-template-columns:120px 1fr;gap:16px;padding:18px;background:linear-gradient(180deg, rgba(255,255,255,0.006), rgba(255,255,255,0.004));
+      display:grid;grid-template-columns:110px 1fr;gap:14px;padding:18px;background:linear-gradient(180deg, rgba(255,255,255,0.006), rgba(255,255,255,0.004));
     }
-    .cover{width:120px;height:120px;border-radius:12px;object-fit:cover;background:linear-gradient(180deg,#0c0d10,#131417);border:1px solid rgba(255,255,255,0.03);box-shadow: 0 12px 30px rgba(2,6,10,0.6);transition:transform 420ms cubic-bezier(.2,.9,.2,1), box-shadow 420ms ease; transform-origin:center;}
+    .cover{
+      width:110px;height:110px;border-radius:10px;object-fit:cover;background:linear-gradient(180deg,#0c0d10,#131417);border:1px solid rgba(255,255,255,0.03);
+      opacity:0;transform:scale(0.9);transition:opacity 0.4s ease, transform 0.4s ease;
+    }
+    .cover.show{
+      opacity:1;transform:scale(1);
+      animation: pulse 2.5s infinite ease-in-out;
+    }
 
-    /* POP animation (subtle 'tenacity-ish' bounce) */
-    .pop {
-      animation: popIn 520ms cubic-bezier(.2,.9,.2,1);
-    }
-    @keyframes popIn{
-      0%{ transform: scale(0.86) rotate(-1deg); filter: drop-shadow(0 0 0 rgba(0,0,0,0)); }
-      45%{ transform: scale(1.06) rotate(0.6deg); }
-      80%{ transform: scale(0.98) rotate(-0.2deg); }
-      100%{ transform: scale(1) rotate(0deg); }
+    @keyframes pulse {
+      0% { box-shadow:0 0 0 0 rgba(110,231,183,0.4); }
+      70% { box-shadow:0 0 0 20px rgba(110,231,183,0); }
+      100% { box-shadow:0 0 0 0 rgba(110,231,183,0); }
     }
 
     .meta{display:flex;flex-direction:column;justify-content:center;gap:6px}
-    .title{font-size:17px;font-weight:800;letter-spacing:0.2px; transition: transform 360ms cubic-bezier(.2,.9,.2,1);}
-    .title.pop-title{ animation: titlePop 520ms cubic-bezier(.2,.9,.2,1); }
-    @keyframes titlePop{ 0%{ transform: translateY(6px) scale(.98); opacity:0 } 60%{ transform: translateY(-3px) scale(1.02); opacity:1 } 100%{ transform: translateY(0) scale(1); } }
-
+    .title{font-size:16px;font-weight:800;letter-spacing:0.2px}
     .artist{font-size:13px;color:var(--muted)}
     .album{font-size:12px;color:var(--muted)}
 
-    .progress{margin-top:12px;height:8px;background:var(--glass);border-radius:999px;overflow:hidden;border:1px solid rgba(255,255,255,0.02)}
-    .bar{height:100%;width:0%;background:linear-gradient(90deg,var(--accent), var(--accent-2));transition:width 500ms linear}
+    .progress{margin-top:12px;height:7px;background:var(--glass);border-radius:999px;overflow:hidden;border:1px solid rgba(255,255,255,0.02)}
+    .bar{height:100%;width:0%;background:linear-gradient(90deg,var(--accent), #34d399)}
 
     footer.controls{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-top:1px solid rgba(255,255,255,0.02)}
     .left{display:flex;gap:10px;align-items:center}
     .btn{background:transparent;border:1px solid rgba(255,255,255,0.03);padding:8px 12px;border-radius:10px;color:inherit;font-weight:600;font-size:13px;cursor:pointer}
-    .btn.primary{background:linear-gradient(90deg,var(--accent), var(--accent-2));color:#082018;border:none}
+    .btn.primary{background:linear-gradient(90deg,var(--accent), #34d399);color:#082018;border:none}
     .status{font-size:13px;color:var(--muted)}
 
     .muted{color:var(--muted)}
@@ -115,13 +110,9 @@
   </div>
 
   <script>
-  // === CONFIGURA AQUÍ ===
-  const CLIENT_ID = "491fcc358ddb4bcbb71f82d6aa2917bd"; // reemplaza
+  const CLIENT_ID = "491fcc358ddb4bcbb71f82d6aa2917bd";
   const SCOPES = ["user-read-currently-playing","user-read-playback-state","user-read-recently-played"];
   const REDIRECT_URI = window.location.origin + window.location.pathname;
-
-  // Estado para animaciones
-  let lastTrackId = null;
 
   function randString(len){ const cs = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~'; let r=''; const a=new Uint8Array(len); crypto.getRandomValues(a); a.forEach(v=>r+=cs[v%cs.length]); return r }
   async function sha256(p){ const e=new TextEncoder(); const d=e.encode(p); const h=await crypto.subtle.digest('SHA-256',d); return new Uint8Array(h) }
@@ -129,7 +120,7 @@
   async function createChallenge(v){ return base64url(await sha256(v)) }
 
   function save(k,v){ localStorage.setItem(k, typeof v === 'string' ? v : JSON.stringify(v)); }
-  function read(k){ try{ return localStorage.getItem(k) }catch{return null} }
+  function read(k){ try{ const v=localStorage.getItem(k); return v }catch{return null} }
   function clearAuth(){ ['access_token','expires_at','code_verifier'].forEach(k=>localStorage.removeItem(k)); }
   function tokenValid(){ const t=read('access_token'); const e=Number(read('expires_at')||0); return !!t && Date.now()<e }
 
@@ -155,56 +146,47 @@
   async function fetchJSON(url){ const res = await fetch(url, { headers: { Authorization: `Bearer ${read('access_token')}` }}); if(res.status===204) return null; if(!res.ok) throw new Error(await res.text()); return res.json(); }
   function msToTime(ms){ const m=Math.floor(ms/60000); const s=Math.floor((ms%60000)/1000).toString().padStart(2,'0'); return `${m}:${s}` }
 
-  function animateCoverAndTitle(trackId){
-    const cover = document.getElementById('cover');
-    const title = document.getElementById('track');
-    // solo anima si cambió la pista
-    if(trackId && trackId !== lastTrackId){
-      lastTrackId = trackId;
-      cover.classList.remove('pop'); // reset
-      void cover.offsetWidth; // reflow for restart
-      cover.classList.add('pop');
+  let lastTrackId = null;
 
-      title.classList.remove('pop-title');
-      void title.offsetWidth;
-      title.classList.add('pop-title');
-      // quitar clases después de animación
-      setTimeout(()=>{ cover.classList.remove('pop'); title.classList.remove('pop-title'); }, 900);
-    }
-  }
-
-  function renderState({ id=null, isPlaying=false, track='—', artist='—', album='—', cover='', progressMs=0, durationMs=0, label='—' }){
+  function renderState({ isPlaying=false, track='—', artist='—', album='—', cover='', progressMs=0, durationMs=0, label='—', trackId='' }){
     document.getElementById('stateLabel').textContent = label;
     document.getElementById('track').textContent = track;
     document.getElementById('artist').textContent = artist;
     document.getElementById('album').textContent = album;
-    if(cover) document.getElementById('cover').src = cover;
+
+    const coverEl = document.getElementById('cover');
+    if(trackId !== lastTrackId){
+      coverEl.classList.remove('show');
+      setTimeout(()=>{
+        coverEl.src = cover || '';
+        coverEl.onload = ()=> coverEl.classList.add('show');
+      },150);
+      lastTrackId = trackId;
+    }
+
     const pct = durationMs ? Math.min(100, Math.round(progressMs / durationMs * 100)) : 0;
     document.getElementById('bar').style.width = pct + '%';
-    animateCoverAndTitle(id);
   }
 
   async function loadPlayback(){
     try{
       const now = await fetchJSON('https://api.spotify.com/v1/me/player/currently-playing');
-      if(now && now.item){ const t = now.item; renderState({ id: t.id, isPlaying: now.is_playing, track: t.name, artist: t.artists.map(a=>a.name).join(', '), album: `${t.album.name} • ${msToTime(t.duration_ms)}`, cover: t.album.images?.[1]?.url || t.album.images?.[0]?.url || '', progressMs: now.progress_ms||0, durationMs: t.duration_ms, label: now.is_playing ? 'Reproduciendo ahora' : 'En pausa' }); return; }
+      if(now && now.item){ const t = now.item; renderState({ isPlaying: now.is_playing, track: t.name, artist: t.artists.map(a=>a.name).join(', '), album: `${t.album.name} • ${msToTime(t.duration_ms)}`, cover: t.album.images?.[1]?.url || t.album.images?.[0]?.url || '', progressMs: now.progress_ms||0, durationMs: t.duration_ms, label: now.is_playing ? 'Reproduciendo ahora' : 'En pausa', trackId: t.id }); return; }
       const recent = await fetchJSON('https://api.spotify.com/v1/me/player/recently-played?limit=1'); const t = recent?.items?.[0]?.track;
-      if(t){ renderState({ id: t.id, track: t.name, artist: t.artists.map(a=>a.name).join(', '), album: `${t.album.name} • ${msToTime(t.duration_ms)}`, cover: t.album.images?.[1]?.url || t.album.images?.[0]?.url || '', progressMs: 0, durationMs: t.duration_ms, label: 'Último reproducido' }); return; }
+      if(t){ renderState({ track: t.name, artist: t.artists.map(a=>a.name).join(', '), album: `${t.album.name} • ${msToTime(t.duration_ms)}`, cover: t.album.images?.[1]?.url || t.album.images?.[0]?.url || '', progressMs: 0, durationMs: t.duration_ms, label: 'Último reproducido', trackId: t.id }); return; }
       renderState({ label: 'Sin historial' });
     }catch(err){ console.error(err); renderState({ label: 'Error al cargar' }); }
   }
 
   function syncUI(){ const logged = tokenValid(); document.getElementById('loginBtn').style.display = logged ? 'none' : 'inline-block'; document.getElementById('logoutBtn').style.display = logged ? 'inline-block' : 'none'; }
 
-  async function init(){
-    const url = new URL(window.location.href); const code = url.searchParams.get('code'); const error = url.searchParams.get('error');
-    if(error){ renderState({ label: 'Acceso denegado' }); }
+  async function init(){ const url = new URL(window.location.href); const code = url.searchParams.get('code'); const error = url.searchParams.get('error'); if(error){ renderState({ label: 'Acceso denegado' }); }
     if(code){ try{ await exchangeToken(code); }catch(e){ console.error(e); renderState({ label: 'No se pudo iniciar sesión' }); } finally{ window.history.replaceState({}, document.title, REDIRECT_URI); } }
     syncUI(); if(tokenValid()){ await loadPlayback(); setInterval(loadPlayback,12000); }
   }
 
   document.getElementById('loginBtn').addEventListener('click', login);
-  document.getElementById('logoutBtn').addEventListener('click', ()=>{ clearAuth(); syncUI(); renderState({ label:'Desconectado' }); lastTrackId = null; });
+  document.getElementById('logoutBtn').addEventListener('click', ()=>{ clearAuth(); syncUI(); renderState({ label:'Desconectado' }); });
   init();
   </script>
 </body>
