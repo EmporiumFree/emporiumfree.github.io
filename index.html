@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Protocolo - Limpieza de PC Gratis</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: #1b1b1b;
+      color: #f5f5f5;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      position: relative;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    /* Linterna sutil */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      background: radial-gradient(
+        circle 60px at var(--x, 50%) var(--y, 50%),
+        rgba(255, 146, 195, 0.25),
+        rgba(27,27,27,0.95)
+      );
+      z-index: 0;
+      transition: background 0.05s;
+    }
+
+    main {
+      position: relative;
+      z-index: 1;
+    }
+
+    .separator {
+      width: 60%;
+      height: 2px;
+      margin: 80px auto;
+      border-radius: 2px;
+      background: linear-gradient(90deg, #ff92c3, #ff69b4, #ff92c3);
+      background-size: 200% 100%;
+      animation: slideGradient 4s linear infinite;
+    }
+
+    @keyframes slideGradient {
+      0% { background-position: 0 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    .feature-card {
+      background: linear-gradient(145deg, #2a2a2a, #1e1e1e);
+      border: 1px solid rgba(255, 146, 195, 0.3);
+      border-radius: 1rem;
+      box-shadow: 0 6px 20px rgba(255, 146, 195, 0.15);
+      transition: all 0.4s ease;
+    }
+    .feature-card:hover {
+      transform: translateY(-8px) scale(1.03);
+      box-shadow: 0 12px 25px rgba(255, 146, 195, 0.35);
+    }
+
+    .icon {
+      font-size: 2.5rem;
+      color: #ff92c3;
+      margin-bottom: 1rem;
+      transition: transform 0.3s ease;
+    }
+    .feature-card:hover .icon {
+      transform: rotate(10deg) scale(1.2);
+    }
+
+    a {
+      transition: all 0.3s ease;
+    }
+    a:hover {
+      transform: translateY(-2px);
+    }
+
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 0;
+    }
+
+    /* Hero pantalla completa */
+    .hero-section {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 0 20px;
+    }
+
+    /* Sección de imagen */
+    .image-section {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      padding: 120px 20px;
+      background: linear-gradient(to bottom, #111, #000); /* más oscura */
+      gap: 50px;
+      position: relative;
+    }
+    .image-section img {
+      max-width: 650px; /* más grande */
+      width: 100%;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    }
+    .image-section .text-block {
+      max-width: 500px;
+      color: white;
+      font-family: 'Montserrat', sans-serif; /* Off-White */
+      font-weight: 700;
+      font-size: 2.5rem;
+      line-height: 1.2;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+    .image-section .text-block .designer-text {
+      font-weight: 400;
+      font-size: 1rem;
+      color: #b0b0b0; /* mismo gris que el footer */
+      margin-top: 10px;
+    }
+
+    /* Degradados para transición entre secciones */
+    .image-section::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 80px;
+      background: linear-gradient(to bottom, #1b1b1b, #000);
+    }
+    .image-section::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 80px;
+      background: linear-gradient(to top, #1b1b1b, #000);
+    }
+  </style>
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body>
+  <canvas id="bgCanvas"></canvas>
+
+  <main>
+    <!-- Hero -->
+    <section class="hero-section">
+      <h1 class="text-6xl md:text-7xl font-extrabold" style="color:#ff92c3;">Protocolo</h1>
+      <p class="mt-6 text-xl md:text-2xl max-w-3xl text-gray-300">
+        Un archivo rápido, sencillo y fácil para mantener tu computadora limpia y ligera.
+      </p>
+
+      <div class="mt-8 flex flex-wrap justify-center gap-6">
+        <a href="emporiumfree.github.io/Protocolo.bat" download="Protocolo.bat" class="px-10 py-4 bg-pink-500 text-white rounded-3xl shadow-xl hover:bg-pink-400 transition">
+          Descargar Gratis
+        </a>
+        <a href="#features" class="px-10 py-4 border border-pink-400 text-pink-400 rounded-3xl shadow hover:bg-pink-500 hover:text-white transition">
+          Ver Características
+        </a>
+      </div>
+
+      <div class="separator"></div>
+    </section>
+
+    <!-- Sección de imagen con texto al lado -->
+    <section class="image-section">
+      <img src="https://emporiumfree.github.io/Proyecto%20nuevo%20(1).png" alt="Captura de Protocolo">
+      <div class="text-block">
+        <span>Fácil, liviano y seguro</span>
+        <span class="designer-text">Diseñado por JuanUke</span>
+      </div>
+    </section>
+
+    <!-- Features -->
+    <section id="features" class="py-24">
+      <div class="max-w-6xl mx-auto px-6 grid md:grid-cols-3 gap-12 text-center">
+        <div class="feature-card p-8">
+          <div class="icon"><i class="fas fa-tachometer-alt"></i></div>
+          <h3 class="text-xl font-bold text-pink-400">Ligero</h3>
+          <p class="mt-2 text-gray-400">Protocolo no consume recursos, funciona en cualquier computadora sin ralentizarla.</p>
+        </div>
+        <div class="feature-card p-8">
+          <div class="icon"><i class="fas fa-robot"></i></div>
+          <h3 class="text-xl font-bold text-pink-400">Fácil</h3>
+          <p class="mt-2 text-gray-400">Con una interfaz sencilla y fácil para todos.</p>
+        </div>
+        <div class="feature-card p-8">
+          <div class="icon"><i class="fas fa-gift"></i></div>
+          <h3 class="text-xl font-bold text-pink-400">Seguro</h3>
+          <p class="mt-2 text-gray-400">Un simple archivo .bat que solo elimina lo necesario, desarrollado por JuanUke</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Call to Action -->
+    <section class="py-24 text-center">
+      <h2 class="text-4xl font-bold text-pink-400">Descarga Protocolo hoy</h2>
+      <p class="mt-4 text-gray-400 text-lg">Mantén tu PC limpia y rápida con un solo clic.</p>
+      <a href="TU_LINK_AQUI/Protocolo.bat" download="Protocolo.bat" class="mt-8 inline-block px-10 py-4 bg-pink-500 text-white rounded-3xl shadow-xl hover:bg-pink-400 transition">
+        Descargar Gratis
+      </a>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-10 text-center text-gray-500 text-sm">
+      © 2025 Protocolo - Hecho con ❤ por JuanUke.cpp
+    </footer>
+  </main>
+
+  <!-- Script fondo animado + linterna -->
+  <script>
+    document.addEventListener("mousemove", (e) => {
+      document.body.style.setProperty("--x", e.clientX + "px");
+      document.body.style.setProperty("--y", e.clientY + "px");
+    });
+
+    const canvas = document.getElementById("bgCanvas");
+    const ctx = canvas.getContext("2d");
+    let particles = [];
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener("resize", resize);
+    resize();
+
+    class Particle {
+      constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 6 + 2;
+        this.speedX = (Math.random() - 0.5) * 1.5;
+        this.speedY = (Math.random() - 0.5) * 1.5;
+        this.color = "rgba(255, 146, 195, 0.35)";
+      }
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+        if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+      }
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+      }
+    }
+
+    function init() {
+      particles = [];
+      for (let i = 0; i < 70; i++) {
+        particles.push(new Particle());
+      }
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => {
+        p.update();
+        p.draw();
+      });
+      requestAnimationFrame(animate);
+    }
+
+    init();
+    animate();
+  </script>
+</body>
+</html>
